@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProductCard, LoadingSpinner } from '../components';
 import { getProducts } from '../services/shopify';
+import { SHOPIFY_CONFIG } from '../services/config';
 import { ShopifyProduct } from '../types/shopify';
 import { RootStackParamList } from '../navigation/types';
 
@@ -28,7 +29,7 @@ export const ProductsScreen: React.FC = () => {
         setLoading(true);
       }
       setError(null);
-      const fetchedProducts = await getProducts(50);
+      const fetchedProducts = await getProducts(SHOPIFY_CONFIG.productLimit);
       setProducts(fetchedProducts);
     } catch (err) {
       setError('Failed to load products. Please try again.');

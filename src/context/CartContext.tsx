@@ -122,11 +122,15 @@ interface CartProviderProps {
   children: ReactNode;
 }
 
+const MAX_QUANTITY = 99;
+
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   const addItem = (product: ShopifyProduct, variant: ShopifyProductVariant, quantity: number = 1) => {
-    dispatch({ type: 'ADD_ITEM', payload: { product, variant, quantity } });
+    // Validate quantity is positive and within limits
+    const validQuantity = Math.max(1, Math.min(quantity, MAX_QUANTITY));
+    dispatch({ type: 'ADD_ITEM', payload: { product, variant, quantity: validQuantity } });
   };
 
   const removeItem = (variantId: string) => {
@@ -134,7 +138,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const updateQuantity = (variantId: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { variantId, quantity } });
+    // Validate quantity: if <= 0, remove item; otherwise clamp to max
+    if (quantity <= 0) {
+      dispatch({ type: 'REMOVE_ITEM', payload: { variantId } });
+    } else {
+      const validQuantity = Math.min(quantity, MAX_QUANTITY);
+      dispatch({ type: 'UPDATE_QUANTITY', payload: { variantId, quantity: validQuantity } });
+    }
   };
 
   const clearCart = () => {
